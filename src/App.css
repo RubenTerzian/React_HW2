@@ -1,38 +1,59 @@
-.App {
-  text-align: center;
+#root{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.wraper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.btn_section{
+    display: flex;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+button{
+    width: 75px;
+    height: 40px;
+    margin: 5px;
+    border-radius: 10px;
+    color: #ffffff;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 15px;
+    font-weight: 500;
 }
 
-.App-link {
-  color: #61dafb;
+button:hover{
+    transform: scale(1.05);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.btn_start{
+    display: none;
+}
+
+.btn_start.active{
+    display: inline-block;
+    background-color: green;
+}
+.btn_continue{
+    display: none;
+}
+
+.btn_continue.active{
+    display: inline-block;
+    background-color: #523db3;
+}
+
+.btn_stop{
+    background-color: red;
+}
+
+.btn_reset{
+    background-color: rgb(235, 145, 28);
 }
