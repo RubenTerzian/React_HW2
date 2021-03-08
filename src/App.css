@@ -34,18 +34,11 @@ button:hover{
 }
 
 .btn_start{
-    display: none;
-}
-
-.btn_start.active{
     display: inline-block;
     background-color: green;
 }
-.btn_continue{
-    display: none;
-}
 
-.btn_continue.active{
+.btn_continue{
     display: inline-block;
     background-color: #523db3;
 }
@@ -56,4 +49,21 @@ button:hover{
 
 .btn_reset{
     background-color: rgb(235, 145, 28);
+}
+
+.time_list{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex-wrap: wrap;
+    width: 100%;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2)
+}
+
+.time_list button{
+    width: 120px;
+    height: 30px;
+    color: black;
 }

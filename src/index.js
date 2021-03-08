@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-
+// jshint ignore:start
 ReactDOM.render(
   <React.StrictMode>
     <App />

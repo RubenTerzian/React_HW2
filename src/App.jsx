@@ -1,114 +1,83 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import './App.css';
-
-
-const startTimeConfig ={
-};
-
-const timeConfig ={
-  hours: 0,
-  minutes: 0,
-  seconds: 0,
-};
-const startTime = () => {
-  const startTime = new Date();
- 
-  startTimeConfig.hours = startTime.getHours();
-  startTimeConfig.minutes = startTime.getMinutes();
-  startTimeConfig.seconds = startTime.getSeconds();
-
-};
-   
-
-const setStartTimerData =()=>{
-  const currentTime = new Date();
-
-  const hour = currentTime.getHours() - startTimeConfig.hours;
-  const minuts = currentTime.getMinutes() - startTimeConfig.minutes;
-  const seconds = currentTime.getSeconds() - startTimeConfig.seconds;
-  const timeValue = seconds + minuts*60 + hour*60*60;
-
-  
-  if(timeValue/60 < 1){
-    // seconds
-    timeConfig.seconds = timeValue;
-  }else{
-    if(timeValue/(60*60) < 1){
-      timeConfig.minutes = Math.floor(timeValue/60);
-      timeConfig.seconds = timeValue%(60);
-    }else{
-      timeConfig.hours = Math.floor(timeValue/(60*60));
-      timeConfig.minutes = Math.floor(timeValue/60%60);
-      timeConfig.seconds = timeValue%60;
-    }
-  }
-  // timeConfig.msms = currentTime.getMilliseconds()
-  
-};
-startTime();
-
-const setIntervalIdArray =[];
+import useSound from 'use-sound';
+import clickButton from './audio/clickButton.mp3';
 
 const App = () =>{
-  const [time, setTime] = useState();
-  const [startBtnIsActive, setStartBtnIsActive] = useState(true);
-  // const [continueBtnIsActive, setContinueBtnIsActive] = useState(false);
-  // const [stopBtnIsActive, setStopBtnIsActive] = useState(false);
+  const [time, setTime] = useState("00:00:00");
   const [timeForShowArray, setTimeForShowArray] = useState([]);
+  const [counter, setCounter] = useState(1);
+  const [startBtnIsActive, setStartBtnIsActive] = useState(true);
+  const [timerOn, setTimerOn] = useState(false);
 
-  const startTimer = ()=>{
-    if(!setIntervalIdArray.length){
-      const timer = setInterval(()=>{
-        setStartTimerData(new Date());
+  const [play] = useSound(clickButton);
+
+  useEffect(()=>{
+    let intervalId;
+    if(timerOn){
+
+      const timeConfig ={
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+      };
+
+      if(counter/60 < 1){
+        // seconds
+        timeConfig.seconds = counter;
+      }else{
+        if(counter/(60*60) < 1){
+          timeConfig.minutes = Math.floor(counter/60);
+          timeConfig.seconds = counter%(60);
+        }else{
+          timeConfig.hours = Math.floor(counter/(60*60));
+          timeConfig.minutes = Math.floor(counter/60%60);
+          timeConfig.seconds = counter%60;
+        }
+      }
+
+      intervalId = setInterval(()=>{
         const timeFormat = 
              (timeConfig.hours<10 ? '0' + timeConfig.hours : timeConfig.hours) + ':' + 
              (timeConfig.minutes<10 ? '0' + timeConfig.minutes : timeConfig.minutes) + ':' + 
              (timeConfig.seconds<10 ? '0' + timeConfig.seconds : timeConfig.seconds);
         setTime(timeFormat);
-        setTime(timeFormat);
-        console.log(timeFormat);
-
+        setCounter(counter+1);
       },1000);
-      setIntervalIdArray.push(timer);
-      console.log(setIntervalIdArray);
-
     }
-  };
+    return () =>{
+        clearInterval(intervalId);
+    };
+  }, [timerOn, setTime, counter]);
+
+  const timeListArrayFromLocalStorage = localStorage.timeForShowArray ? JSON.parse(localStorage.timeForShowArray) : localStorage.timeForShowArray;
+
   /* jshint ignore:start */
   return  (
     <div className="wraper">
-      <h1>{time || "00:00:00"}</h1>
+      <h1>{time}</h1>
       <div className="btn_section">
-        {/* CONTINUE */}
-
+    
+        {/* START/CONTINUE */}
         <button 
-        isActive={!startBtnIsActive}
-        className={ startBtnIsActive ? 'btn_continue' : ('btn_continue active')}
-        onClick={()=> {
-          startTimer()
-        }}
-        >
-          Continue
-        </button>
-        {/* START */}
-        <button 
-        className={ !startBtnIsActive ? 'btn_start' : ('btn_start active')}
+        className={startBtnIsActive ? 'btn_start' : ('btn_continue')}
         onClick={()=>{
-          startTime()
-          startTimer()
-        }}>Start</button>
+          setStartBtnIsActive(true)
+          setTimerOn(true)
+          play()
+        }}>{startBtnIsActive ? "Start" : "Continue"}</button>
+        
         {/* STOP */}
-
         <button 
         className="btn_stop"
         onClick={()=> {
-          if(startBtnIsActive){
-            setStartBtnIsActive(!startBtnIsActive)
-          }
-          setTimeForShowArray([time, ...timeForShowArray])
-          clearInterval(setIntervalIdArray[0])
-          setIntervalIdArray.splice(0,1)
-          console.log(timeConfig);
+            timerOn && setStartBtnIsActive(!startBtnIsActive)
+            timerOn && setTimerOn(!timerOn)
+            if(timerOn){
+              setTimeForShowArray([time, ...timeForShowArray]);
+              localStorage.timeForShowArray = JSON.stringify([time, ...timeForShowArray]);
+            }
+          play()
         }
         }
         >Stop</button>
@@ -117,25 +86,45 @@ const App = () =>{
         <button 
         className="btn_reset"
         onClick={()=>{
-          startTime()
-          setStartTimerData()
-          clearInterval(setIntervalIdArray[0])
-          setIntervalIdArray.splice(0,1) 
+          setStartBtnIsActive(true)
+          timerOn && setTimerOn(!timerOn)
+          setCounter(1)
           setTime("00:00:00")
-          setStartBtnIsActive(!startBtnIsActive)
-          setTimeForShowArray([time, ...timeForShowArray])
-          console.log(timeConfig);
+          if(timerOn){
+            setTimeForShowArray([time, ...timeForShowArray]);
+            localStorage.timeForShowArray = JSON.stringify([time, ...timeForShowArray]);
+          }
+          play()
         }}
         >Reset</button>
       </div>
       <div className="time_list">
         {
-          timeForShowArray.map( (time, index) =>{
+          timeListArrayFromLocalStorage
+           ?
+           JSON.parse(localStorage.timeForShowArray).map( (time, index) =>{
             if(index<=3){
               return <p key={"time_list"+index}>{time}</p>
             }
           })
+            :
+            timeForShowArray.map( (time, index) =>{
+              if(index<=3){
+                return <p key={"time_list"+index}>{time}</p>
+              }
+            })
+            
         }
+        { (timeForShowArray.length || timeListArrayFromLocalStorage) &&
+          <button
+          onClick = {()=>{
+          localStorage.clear()
+          setTimeForShowArray([])
+          play()
+        }}
+        >Clear time list</button>
+        }
+        
       </div>
     </div>
   )
