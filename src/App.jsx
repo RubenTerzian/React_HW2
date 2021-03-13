@@ -4,9 +4,9 @@ import useSound from 'use-sound';
 import clickButton from './audio/clickButton.mp3';
 
 const App = () =>{
-  const [time, setTime] = useState("00:00:00");
+  const [time, setTime] = useState("00:00:00:0000");
   const [timeForShowArray, setTimeForShowArray] = useState([]);
-  const [counter, setCounter] = useState(1);
+  const [counter, setCounter] = useState(7190000);
   const [startBtnIsActive, setStartBtnIsActive] = useState(true);
   const [timerOn, setTimerOn] = useState(false);
 
@@ -16,34 +16,43 @@ const App = () =>{
     let intervalId;
     if(timerOn){
 
-      const timeConfig ={
+      const timeConfig = {
         hours: 0,
         minutes: 0,
         seconds: 0,
+        milliseconds: 0,
       };
 
-      if(counter/60 < 1){
+      if(counter/1000 < 1){
         // seconds
-        timeConfig.seconds = counter;
+        timeConfig.milliseconds = counter;
       }else{
-        if(counter/(60*60) < 1){
-          timeConfig.minutes = Math.floor(counter/60);
-          timeConfig.seconds = counter%(60);
-        }else{
-          timeConfig.hours = Math.floor(counter/(60*60));
-          timeConfig.minutes = Math.floor(counter/60%60);
-          timeConfig.seconds = counter%60;
+        if (counter / (60 * 1000) < 1) {
+          timeConfig.seconds = Math.floor(counter/1000);
+          timeConfig.milliseconds = counter%1000;
+        } else {
+          if (counter / (60 * 60 * 1000) < 1){
+            timeConfig.minutes = Math.floor(counter/(60*1000));
+            timeConfig.seconds = Math.floor(counter/1000%60);
+            timeConfig.milliseconds = counter%1000;
+          } else {
+            timeConfig.hours = Math.floor(counter/(60*60*1000));
+            timeConfig.minutes = Math.floor(counter/(60*1000)%60);
+            timeConfig.seconds = Math.floor(counter/1000%60);
+            timeConfig.milliseconds = counter%1000;
+          }
         }
       }
 
       intervalId = setInterval(()=>{
-        const timeFormat = 
-             (timeConfig.hours<10 ? '0' + timeConfig.hours : timeConfig.hours) + ':' + 
-             (timeConfig.minutes<10 ? '0' + timeConfig.minutes : timeConfig.minutes) + ':' + 
-             (timeConfig.seconds<10 ? '0' + timeConfig.seconds : timeConfig.seconds);
+        const timeFormat =
+          (timeConfig.hours < 10 ? '0' + timeConfig.hours : timeConfig.hours) + ':' +
+          (timeConfig.minutes < 10 ? '0' + timeConfig.minutes : timeConfig.minutes) + ':' +
+          (timeConfig.seconds < 10 ? '0' + timeConfig.seconds : timeConfig.seconds) + ':' +
+          (timeConfig.milliseconds < 10 ? '00' + timeConfig.milliseconds : (timeConfig.milliseconds < 100 ? '0' + timeConfig.milliseconds : timeConfig.milliseconds));
         setTime(timeFormat);
-        setCounter(counter+1);
-      },1000);
+        setCounter(counter+8);
+      },1);
     }
     return () =>{
         clearInterval(intervalId);
@@ -89,7 +98,7 @@ const App = () =>{
           setStartBtnIsActive(true)
           timerOn && setTimerOn(!timerOn)
           setCounter(1)
-          setTime("00:00:00")
+          setTime("00:00:00:0000")
           if(timerOn){
             setTimeForShowArray([time, ...timeForShowArray]);
             localStorage.timeForShowArray = JSON.stringify([time, ...timeForShowArray]);
